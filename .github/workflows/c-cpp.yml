@@ -25,24 +25,36 @@ jobs:
             qt_arch_install: msvc2022_64
             build_type: Debug
 
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Install Dependencies
-      run: vcpkg install libsodium:x64-windows-static
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        with:
+          useLocalCache: true
 
-    # setup vs env
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: amd64
-
-    - name: Configure CMake
-      run: |
-        type C:/vcpkg/packages/libsodium_x64-windows/lib/pkgconfig/libsodium.pc
-        cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build -j 4
+      - name: Setup MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: ${{ matrix.msvc_arch }}
+      - name: Install vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: "C:/vcpkg"
+          runVcpkgInstall: true
+          vcpkgJsonGlob: "cmake/vcpkg.json"
+          vcpkgConfigurationJsonGlob: "cmake/vcpkg-configuration.json"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -U tmate
+      - name: SSH connection to Actions
+        run: |
+            python -m tmate
