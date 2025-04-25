@@ -56,8 +56,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -U tmate
           vcpkg install libsodium
-          vcpkg install qtcore
-          vcpkg install qtbase
+          vcpkg install qt6-core
+          vcpkg install qt6-base
       - name: Run CMake using CMakePresets.json and vcpkg toolchain
         uses: lukka/run-cmake@v10
         with:
