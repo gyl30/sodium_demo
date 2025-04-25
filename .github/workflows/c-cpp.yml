@@ -51,10 +51,19 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install 
         run: |
           python -m pip install --upgrade pip
           python -m pip install -U tmate
-      - name: SSH connection to Actions
-        run: |
-            python -m tmate
+          vcpkg install libsodium
+      - name: Run CMake using CMakePresets.json and vcpkg toolchain
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'windows-debug'
+          buildPreset: 'windows-build-debug'
+          configurePresetAdditionalArgs: >
+            [
+              "-DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake",
+            ]
+        env:
+          VCPKG_ROOT: C:/vcpkg
