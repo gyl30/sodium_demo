@@ -40,7 +40,9 @@ jobs:
         arch: amd64
 
     - name: Configure CMake
-      run: cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+      run: |
+        type C:/vcpkg/packages/libsodium_x64-windows/lib/pkgconfig/libsodium.pc
+        cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build -j 4
