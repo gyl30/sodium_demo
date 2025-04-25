@@ -13,8 +13,8 @@ jobs:
   windows:
     runs-on: windows-latest
     env:
-      VCPKG_DEFAULT_TRIPLET: x64-windows
-      VCPKG_DEFAULT_HOST_TRIPLET: x64-windows
+      VCPKG_DEFAULT_TRIPLET: x64-windows-static
+      VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
     strategy:
       matrix:
         include:
@@ -56,6 +56,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -U tmate
           vcpkg install libsodium
+          vcpkg install qt
       - name: Run CMake using CMakePresets.json and vcpkg toolchain
         uses: lukka/run-cmake@v10
         with:
