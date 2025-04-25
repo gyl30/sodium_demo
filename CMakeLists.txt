@@ -13,6 +13,35 @@ if(NOT CMAKE_BUILD_TYPE)
   add_compile_options(-Wall -fno-strict-aliasing -fno-omit-frame-pointer -g -O0 -ggdb)
 endif()
 
+if(WIN32)
+  set(BOOST_TOOLSET "msvc")
+  cmake_policy(SET CMP0167 NEW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GL")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG")
+endif()
+
+# 找线程库
+if(NOT WIN32)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads REQUIRED)
+endif()
+
+# ================= Boost =================
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_DEBUG_LIBS ON)
+set(Boost_USE_RELEASE_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS system filesystem context url thread)
+
+if(Boost_FOUND)
+  message(STATUS "Found Boost ${Boost_VERSION} at ${Boost_INCLUDE_DIR}")
+  include_directories(${Boost_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "Boost not found!")
+endif()
+
 # 设置 vcpkg 工具链
 if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake")
@@ -40,4 +69,3 @@ endif()
 add_executable(sodium main.cc)
 
 target_link_libraries(sodium ${LINK_LIBS})
-
