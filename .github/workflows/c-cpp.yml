@@ -47,17 +47,20 @@ jobs:
           runVcpkgInstall: true
           vcpkgJsonGlob: "cmake/vcpkg.json"
           vcpkgConfigurationJsonGlob: "cmake/vcpkg-configuration.json"
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+      - name: Install Boost
+        uses: MarkusJx/install-boost@v2
+        id: install-boost
         with:
-          python-version: ${{ matrix.python-version }}
+          boost_version: 1.83.0
+          platform_version: 2022
+          toolset: msvc
+          link: static
+          
       - name: Install 
         run: |
           python -m pip install --upgrade pip
           python -m pip install -U tmate
           vcpkg install libsodium
-          vcpkg install qt6-core
-          vcpkg install qt6-base
       - name: Run CMake using CMakePresets.json and vcpkg toolchain
         uses: lukka/run-cmake@v10
         with:
@@ -65,7 +68,11 @@ jobs:
           buildPreset: 'windows-build-debug'
           configurePresetAdditionalArgs: >
             [
+              "-DBoost_NO_SYSTEM_PATHS=ON",
+              "-DBoost_INCLUDE_DIR=${{ steps.install-boost.outputs.BOOST_ROOT }}/include",
+              "-DBoost_LIBRARY_DIRS=${{ steps.install-boost.outputs.BOOST_ROOT }}/lib",
               "-DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake",
             ]
         env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
           VCPKG_ROOT: C:/vcpkg
