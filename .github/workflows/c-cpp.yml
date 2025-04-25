@@ -25,36 +25,22 @@ jobs:
             qt_arch_install: msvc2022_64
             build_type: Debug
 
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-        with:
-          useLocalCache: true
+    - name: Install Dependencies
+      run: vcpkg install libsodium:x64-windows-static
 
-      - name: Setup MSVC
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: ${{ matrix.msvc_arch }}
-      - name: Install vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgDirectory: "C:/vcpkg"
-          runVcpkgInstall: true
-          vcpkgJsonGlob: "cmake/vcpkg.json"
-          vcpkgConfigurationJsonGlob: "cmake/vcpkg-configuration.json"
-      - name: Run CMake using CMakePresets.json and vcpkg toolchain
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: 'windows-debug'
-          buildPreset: 'windows-build-debug'
-          configurePresetAdditionalArgs: >
-            [
-              "-DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake",
-            ]
-        env:
-          VCPKG_ROOT: C:/vcpkg
+    # setup vs env
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: amd64
+
+    - name: Configure CMake
+      run: cmake -G Ninja -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build -j 4
