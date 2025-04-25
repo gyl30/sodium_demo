@@ -1,6 +1,6 @@
 {
   "name": "sodium",
   "dependencies": [
-    "libsodium",
+    "libsodium"
   ]
 }
