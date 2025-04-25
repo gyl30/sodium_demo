@@ -15,6 +15,7 @@ endif()
 
 if(WIN32)
   set(BOOST_TOOLSET "msvc")
+  set(CMAKE_POLICY_WARNING_CMP0069 OFF)
   cmake_policy(SET CMP0167 NEW)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GL")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG")
@@ -53,10 +54,11 @@ else()
     message(WARNING "VCPKG_ROOT or VCPKG_INSTALLATION_ROOT not defined, vcpkg integration may fail")
 endif()
 
-# ================= Sodium + libuv =================
 if(WIN32)
   find_package(unofficial-sodium CONFIG REQUIRED)
+  find_package(libuv CONFIG REQUIRED)
   list(APPEND LINK_LIBS 
+    ${Boost_LIBRARIES}
     unofficial-sodium::sodium
     ws2_32
   )
